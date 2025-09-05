@@ -1,7 +1,11 @@
 <?php
-// Budget Tracker Pro - Main API for Render.com (Final Full Version)
-// ไฟล์นี้ถูกแปลงโค้ดทั้งหมดจาก mysqli เป็น PDO เพื่อให้ทำงานกับ PostgreSQL ได้
-require 'config.php'; // เชื่อมต่อฐานข้อมูล (เวอร์ชัน PDO)
+// Budget Tracker Pro - Main API for Render.com (Final Corrected Version)
+header('Content-Type: application/json');
+require 'config.php'; // เรียกใช้ไฟล์ config ที่มีฟังก์ชันเชื่อมต่อ
+
+// *** จุดแก้ไขที่สำคัญที่สุด ***
+// เรียกใช้ฟังก์ชันเพื่อเชื่อมต่อและรับค่า $conn มาเก็บไว้ในตัวแปร
+$conn = connect_to_database();
 
 // รับค่าจาก request (เหมือนเดิม)
 $action = $_GET['action'] ?? '';
@@ -12,10 +16,8 @@ function get_profile_id($conn, $profile_name) {
     if (empty($profile_name)) {
         throw new Exception("Profile name cannot be empty.");
     }
-    // PDO: ใช้ execute([...]) แทน bind_param และ execute แยกกัน
     $stmt = $conn->prepare("SELECT profile_id FROM profiles WHERE profile_name = ?");
     $stmt->execute([$profile_name]);
-    // PDO: ใช้ fetch() เพื่อดึงข้อมูลแถวเดียว
     $profile = $stmt->fetch();
 
     if ($profile) {
@@ -23,37 +25,30 @@ function get_profile_id($conn, $profile_name) {
     } else {
         $stmt = $conn->prepare("INSERT INTO profiles (profile_name) VALUES (?)");
         $stmt->execute([$profile_name]);
-        // PDO: การดึง ID ล่าสุดของ PostgreSQL ต้องระบุ sequence name
-        return $conn->lastInsertId('profiles_profile_id_seq'); 
+        return $conn->lastInsertId('profiles_profile_id_seq');
     }
 }
 
 try {
-    // เริ่ม transaction สำหรับ request ที่เป็น POST (ของ PDO)
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->beginTransaction();
     }
 
     switch ($action) {
-        // ... (GET Handlers) ...
         case 'get_all_data':
             $profile_name = $_GET['profile'] ?? 'default';
             $year = (int)($_GET['year'] ?? date('Y') + 543);
             
             $profile_id = get_profile_id($conn, $profile_name);
 
-            // Fetch Categories, Goals, Transactions, Recurring...
-            // PDO: ใช้ fetchAll() เพื่อดึงข้อมูลทั้งหมดในครั้งเดียว ไม่ต้องใช้ while loop
+            // Logic ทั้งหมดที่เหลือเหมือนเดิมทุกประการ เพราะตอนนี้ $conn ใช้งานได้แล้ว
             $stmt_cat = $conn->prepare("SELECT category_id, category_name, category_type, due_day, goal_id FROM categories WHERE profile_id = ? AND is_active = 1 ORDER BY category_type, display_order ASC");
             $stmt_cat->execute([$profile_id]);
             $categories_result = $stmt_cat->fetchAll();
 
             $columnStructure = ['income' => [], 'expense' => [], 'savings' => []];
-            $expenseDueDates = [];
-            $incomeDueDates = [];
-            $category_map = [];
+            $expenseDueDates = []; $incomeDueDates = []; $category_map = [];
             
-            // Logic การประมวลผลข้อมูลยังคงเหมือนเดิม
             foreach($categories_result as $row) {
                 $category_item = ['id' => (int)$row['category_id'], 'name' => $row['category_name']];
                 if ($row['category_type'] === 'savings') $category_item['goalId'] = $row['goal_id'] ? (int)$row['goal_id'] : null;
@@ -81,7 +76,6 @@ try {
                 foreach($stmt_trans->fetchAll() as $row) $transactions[$row['transaction_month']][$row['category_id']] = $row;
             }
 
-            // Logic การสร้าง budgetData ยังคงเหมือนเดิมทุกประการ
             $thaiMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
             $budgetData = [];
             for ($m = 1; $m <= 12; $m++) {
@@ -100,18 +94,16 @@ try {
             $stmt_rec->execute([$profile_id]);
             foreach($stmt_rec->fetchAll() as $row) $recurringTransactions[$row['category_id']] = (float)$row['amount'];
 
-            // ผลลัพธ์ที่ส่งกลับมีโครงสร้างเหมือนเดิมทุกประการ
             echo json_encode(['success' => true, 'data' => [
                 'budgetData' => $budgetData, 'columnStructure' => $columnStructure,
                 'expenseDueDates' => $expenseDueDates, 'incomeDueDates' => $incomeDueDates,
                 'savingsGoals' => $savingsGoals, 'recurringTransactions' => $recurringTransactions
             ]]);
             break;
-
-        // ... (POST Handlers - แปลงเป็น PDO ทั้งหมด) ...
+        
+        // POST Handlers converted to PDO
         case 'save_transaction':
             $profile_id = get_profile_id($conn, $input['profileName']);
-            // PDO: ใช้ ON CONFLICT ... DO UPDATE สำหรับ PostgreSQL แทน ON DUPLICATE KEY UPDATE ของ MySQL
             $sql = "INSERT INTO transactions (profile_id, category_id, transaction_year, transaction_month, amount, is_paid, note) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (profile_id, category_id, transaction_year, transaction_month) DO UPDATE SET amount = EXCLUDED.amount, is_paid = EXCLUDED.is_paid, note = EXCLUDED.note";
             $stmt = $conn->prepare($sql);
             $stmt->execute([ $profile_id, (int)$input['categoryId'], (int)$input['year'], (int)$input['monthId'], (float)$input['amount'], (int)(bool)$input['is_paid'], $input['note'] ?? '' ]);
@@ -135,7 +127,6 @@ try {
             $profile_id = get_profile_id($conn, $input['profileName']);
             $stmt = $conn->prepare("DELETE FROM categories WHERE category_id = ? AND profile_id = ? AND category_type != 'savings'");
             $stmt->execute([(int)$input['categoryId'], $profile_id]);
-            // PDO: ใช้ rowCount() เพื่อตรวจสอบจำนวนแถวที่ได้รับผลกระทบ
             echo json_encode(['success' => $stmt->rowCount() > 0]);
             break;
 
@@ -221,20 +212,18 @@ try {
             $stmt_goal->execute([$goalId, $profile_id]);
             echo json_encode(['success' => $stmt_goal->rowCount() > 0]);
             break;
-
+        
         default:
             throw new Exception('Invalid API Action.');
             break;
     }
 
-    // ถ้าทุกอย่างสำเร็จ ให้ commit transaction
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && $conn->inTransaction()) {
         $conn->commit();
     }
 
 } catch (Exception $e) {
-    // ถ้าเกิดข้อผิดพลาด ให้ rollback transaction
-    if ($conn->inTransaction()) {
+    if ($conn && $conn->inTransaction()) {
         $conn->rollBack();
     }
     http_response_code(400); 
