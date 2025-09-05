@@ -1,7 +1,9 @@
-    services:
-      - type: web
-        name: saving # คุณสามารถเปลี่ยนชื่อนี้ได้ตามต้องการ
-        env: php
-        plan: free
-        healthCheckPath: /index.html
-    
+services:
+  - type: web
+    name: saving # คุณสามารถเปลี่ยนชื่อนี้ได้ตามต้องการ
+    env: php
+    plan: free
+    # คำสั่งสำหรับเริ่มการทำงานของเว็บเซิร์ฟเวอร์ Apache
+    startCommand: apache2-foreground
+    healthCheckPath: /index.html
+
