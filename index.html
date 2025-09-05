@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Tracker Pro | ระบบติดตามรายรับ-รายจ่าย</title>
+    
+    <!-- Google Font 'Sarabun' -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- โครงสร้างหลักของแอปพลิเคชัน -->
+    <div class="app-container">
+        <!-- แถบควบคุมด้านซ้าย (Sidebar) -->
+        <aside class="sidebar">
+            <div class="header">
+                <i class="ph-bold ph-wallet logo"></i>
+                <div>
+                    <h1>Budget Tracker Pro</h1>
+                    <p>ระบบติดตามรายรับ-รายจ่าย</p>
+                </div>
+            </div>
+
+            <div class="controls-group">
+                <h3>โปรไฟล์ & การตั้งค่า</h3>
+                <div class="input-group profile-group">
+                    <div class="profile-input-wrapper">
+                        <label for="profileName">ชื่อโปรไฟล์งบประมาณ</label>
+                        <input type="text" id="profileName" placeholder="เช่น ส่วนตัว, ครอบครัว">
+                    </div>
+                    <button id="saveProfileBtn" class="btn btn-icon-only" title="บันทึกชื่อโปรไฟล์">
+                        <i class="ph-bold ph-floppy-disk"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- กลุ่มควบคุม: เลือกปี -->
+            <div class="controls-group">
+                <h3>ตั้งค่าปีงบประมาณ</h3>
+                <div class="input-group">
+                    <label for="itemYear">เลือกปี พ.ศ.</label>
+                    <select id="itemYear" onchange="handleYearChange()"></select>
+                </div>
+            </div>
+
+            <!-- กลุ่มควบคุม: เป้าหมายการออม -->
+            <div class="controls-group">
+                <h3>เป้าหมายการออม</h3>
+                <div id="savingsGoalsContainer">
+                    <!-- เนื้อหาเป้าหมายจะถูกสร้างโดย JavaScript -->
+                </div>
+                <button class="btn btn-info" id="openSavingsGoalModalBtn">
+                    <i class="ph-bold ph-plus-circle"></i>
+                    <span>เพิ่มเป้าหมายใหม่</span>
+                </button>
+            </div>
+
+            <!-- กลุ่มควบคุม: จัดการคอลัมน์ -->
+            <div class="controls-group">
+                <h3>จัดการคอลัมน์</h3>
+                 <!-- START: เพิ่มข้อความอธิบาย (แก้ไขข้อ 1) -->
+                <p style="font-size: 0.8rem; color: var(--text-light); margin: -0.5rem 0 1rem; padding-left: 0.5rem;">
+                    หมายเหตุ: คอลัมน์ "เงินออม" จะถูกสร้างโดยอัตโนมัติเมื่อคุณ "เพิ่มเป้าหมายใหม่"
+                </p>
+                <!-- END: เพิ่มข้อความอธิบาย -->
+                <div class="input-group">
+                    <label for="newColumnName">ชื่อคอลัมน์ใหม่</label>
+                    <input type="text" id="newColumnName" placeholder="เช่น ค่ากาแฟ, รายได้พิเศษ">
+                    <button class="btn btn-success" onclick="addColumn('income')">
+                        <i class="ph-bold ph-plus-circle"></i>
+                        <span>เพิ่มรายรับ</span>
+                    </button>
+                    <button class="btn btn-danger" onclick="addColumn('expense')">
+                        <i class="ph-bold ph-minus-circle"></i>
+                        <span>เพิ่มรายจ่าย</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- กลุ่มควบคุม: เครื่องมือ -->
+             <div class="controls-group">
+                <h3>เครื่องมือและรายงาน</h3>
+                <div class="input-group">
+                    <button class="btn btn-main" id="openDashboardModalBtn">
+                        <i class="ph-bold ph-chart-pie-slice"></i>
+                        <span>แดชบอร์ดสรุปผล</span>
+                    </button>
+                    <button class="btn btn-main" id="openIncomeDateModalBtn">
+                        <i class="ph-bold ph-calendar-plus"></i>
+                        <span>กำหนดวันรับเงิน</span>
+                    </button>
+                    <button class="btn btn-main" id="openDueDateModalBtn">
+                        <i class="ph-bold ph-calendar-check"></i>
+                        <span>กำหนดวันชำระ</span>
+                    </button>
+                    <button class="btn btn-main" id="openRecurringModalBtn">
+                        <i class="ph-bold ph-arrows-clockwise"></i>
+                        <span>ตั้งค่ารายการประจำ</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportData()">
+                        <i class="ph-bold ph-export"></i>
+                        <span>ส่งออกเป็น Excel</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ส่วนเนื้อหาหลัก -->
+        <main class="main-content">
+            <!-- ส่วนหัวข้อหลัก -->
+            <div class="main-header">
+                <div class="header-text">
+                    <h2>ภาพรวมงบประมาณ</h2>
+                    <p>สรุปรายรับ-รายจ่าย และคงเหลือสำหรับปีที่เลือก</p>
+                </div>
+                <div id="realtime-clock" class="clock-display">
+                    <!-- เนื้อหานาฬิกาจะถูกสร้างโดย JavaScript -->
+                </div>
+            </div>
+
+            <!-- ส่วนสรุปผล -->
+            <!-- START: แก้ไขโครงสร้างการ์ดสรุปผล (แก้ไขข้อ 2, 3) -->
+            <div class="summary">
+                <div class="summary-card">
+                    <div class="card-icon income">
+                        <i class="ph-bold ph-arrow-circle-down"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>รวมรายรับทั้งหมด</h3>
+                        <div class="amount income-amount" id="totalIncome">0.00</div>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="card-icon expense">
+                        <i class="ph-bold ph-arrow-circle-up"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>รวมรายจ่ายทั้งหมด</h3>
+                        <div class="amount expense-amount" id="totalExpense">0.00</div>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="card-icon savings">
+                        <i class="ph-bold ph-piggy-bank"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>รวมเงินออมทั้งหมด</h3>
+                        <div class="amount savings-amount" id="totalSavings">0.00</div>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="card-icon balance">
+                        <i class="ph-bold ph-bank"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>คงเหลือใช้จ่าย</h3>
+                        <div class="amount balance-amount" id="netBalance">0.00</div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: แก้ไขโครงสร้างการ์ดสรุปผล -->
+            
+            <!-- ส่วนตารางข้อมูล -->
+            <div class="table-container">
+                <div class="table-wrapper">
+                    <table id="budgetTable">
+                        <!-- เนื้อหาตารางทั้งหมดจะถูกสร้างโดย JavaScript -->
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ปุ่มสลับธีมใหม่ -->
+    <div class="theme-switcher">
+        <input type="checkbox" id="themeToggle">
+        <label for="themeToggle" class="slider-v2">
+            <i class="ph-bold ph-sun"></i>
+            <i class="ph-bold ph-moon"></i>
+        </label>
+    </div>
+
+
+    <!-- โครงสร้าง Modal สำหรับแดชบอร์ด -->
+    <div id="dashboardModal" class="modal-overlay">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2>แดชบอร์ดสรุปผลภาพรวม</h2>
+                <button class="close-btn"><i class="ph-bold ph-x"></i></button>
+            </div>
+            <div class="modal-body dashboard-body">
+                <div class="chart-container">
+                    <h3>สัดส่วนรายจ่าย</h3>
+                    <canvas id="expensePieChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>แนวโน้มรายรับ-รายจ่าย-เงินออมรายเดือน</h3>
+                    <canvas id="monthlyTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- โครงสร้าง Modal สำหรับเป้าหมายการออม -->
+    <div id="savingsGoalModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="goalModalTitle">เพิ่มเป้าหมายการออม</h2>
+                <button class="close-btn"><i class="ph-bold ph-x"></i></button>
+            </div>
+            <div class="modal-body">
+                <!-- START: เพิ่มข้อความอธิบาย (แก้ไขข้อ 1) -->
+                <p id="goalModalDescription" style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1.5rem; text-align: center;">
+                    การเพิ่มเป้าหมายใหม่จะสร้างคอลัมน์สำหรับออมเงินในตารางโดยอัตโนมัติ
+                </p>
+                <!-- END: เพิ่มข้อความอธิบาย -->
+                <input type="hidden" id="goalId">
+                <div class="form-group">
+                    <label for="goalName">ชื่อเป้าหมาย (จะกลายเป็นชื่อคอลัมน์)</label>
+                    <input type="text" id="goalName" placeholder="เช่น เก็บเงินเที่ยวญี่ปุ่น, ซื้อคอมใหม่">
+                </div>
+                <div class="form-group">
+                    <label for="goalAmount">จำนวนเงินเป้าหมาย (บาท)</label>
+                    <input type="number" id="goalAmount" placeholder="50000">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="saveGoalBtn" class="btn btn-success">
+                    <i class="ph-bold ph-floppy-disk"></i>
+                    <span>บันทึกเป้าหมาย</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- โครงสร้าง Modal สำหรับบันทึกข้อความ -->
+    <div id="noteModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="noteModalTitle">เพิ่ม/แก้ไขบันทึก</h2>
+                <button class="close-btn"><i class="ph-bold ph-x"></i></button>
+            </div>
+            <div class="modal-body">
+                <textarea id="noteTextarea" rows="5" placeholder="จดบันทึกรายละเอียดเพิ่มเติม..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="deleteNoteBtn" class="btn btn-danger">
+                    <i class="ph-bold ph-trash"></i>
+                    <span>ลบบันทึก</span>
+                </button>
+                <button id="saveNoteBtn" class="btn btn-success">
+                    <i class="ph-bold ph-floppy-disk"></i>
+                    <span>บันทึก</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+     <!-- โครงสร้าง Modal สำหรับรายการประจำ -->
+     <div id="recurringModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ตั้งค่ารายการประจำ (Recurring)</h2>
+                <button class="close-btn"><i class="ph-bold ph-x"></i></button>
+            </div>
+            <div class="modal-body" id="recurringList">
+                 <!-- เนื้อหารายการประจำจะถูกสร้างโดย JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button id="applyRecurringBtn" class="btn btn-main" title="เติมข้อมูลรายการประจำลงในเดือนที่ยังว่างอยู่">
+                    <i class="ph-bold ph-check-circle"></i>
+                    <span>นำไปใช้กับตาราง</span>
+                </button>
+                <button id="saveRecurringBtn" class="btn btn-success">
+                    <i class="ph-bold ph-floppy-disk"></i>
+                    <span>บันทึกค่า</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- โครงสร้างหน้าต่าง Modal สำหรับตั้งค่ากำหนดรับเงิน -->
+    <div id="incomeDateModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ตั้งค่ากำหนดรับเงิน</h2>
+                <button class="close-btn"><i class="ph-bold ph-x"></i></button>
+            </div>
+            <div class="modal-body" id="incomeDateList"></div>
+            <div class="modal-footer">
+                <button id="saveIncomeDateBtn" class="btn btn-success">
+                    <i class="ph-bold ph-floppy-disk"></i>
+                    <span>บันทึกข้อมูล</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- โครงสร้างหน้าต่าง Modal สำหรับตั้งค่ากำหนดชำระ -->
+    <div id="dueDateModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ตั้งค่ากำหนดชำระรายจ่าย</h2>
+                <button class="close-btn"><i class="ph-bold ph-x"></i></button>
+            </div>
+            <div class="modal-body" id="dueDateList"></div>
+            <div class="modal-footer">
+                <button id="saveDueDateBtn" class="btn btn-success">
+                    <i class="ph-bold ph-floppy-disk"></i>
+                    <span>บันทึกข้อมูล</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- โครงสร้าง Modal สำหรับยืนยันการกระทำ -->
+    <div id="confirmationModal" class="modal-overlay">
+        <div class="modal-content confirmation">
+            <div class="modal-header">
+                <h2 id="confirmTitle">ยืนยันการกระทำ</h2>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">คุณแน่ใจหรือไม่ว่าต้องการดำเนินการต่อ?</p>
+            </div>
+            <div class="modal-footer confirmation">
+                <button id="cancelBtn" class="btn btn-secondary">
+                    <i class="ph-bold ph-x-circle"></i>
+                    <span>ยกเลิก</span>
+                </button>
+                <button id="confirmBtn" class="btn btn-danger">
+                    <i class="ph-bold ph-trash"></i>
+                    <span>ยืนยัน</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- พื้นที่สำหรับแสดงการแจ้งเตือน -->
+    <div id="notification-container"></div>
+
+    <!-- ส่วนแสดงสถานะกำลังโหลด -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Library for Excel Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Library for Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Main Script -->
+    <script src="script.js"></script>
+</body>
+</html>

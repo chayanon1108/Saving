@@ -1,0 +1,1211 @@
+/* --- Google Font Import (Sarabun) --- */
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+
+/* --- Keyframe Animations --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes numberUpdate {
+    0% { transform: translateY(5px); opacity: 0.5; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(0.95) translateY(-20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes notificationSlideIn {
+    from { opacity: 0; transform: translateX(100%); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes notificationFadeOut {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(100%); }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+
+/* --- ตัวแปรสีและสไตล์หลัก (Light Theme) --- */
+:root {
+    --sidebar-width: 350px;
+
+    --primary-color: #5e5ce6;
+    --primary-light: rgba(94, 92, 230, 0.1);
+    --success-color: #34c759;
+    --success-light: rgba(52, 199, 89, 0.1);
+    --danger-color: #ff3b30;
+    --danger-light: rgba(255, 59, 48, 0.1);
+    --warning-color: #ff9500;
+    --warning-light: rgba(255, 149, 0, 0.1);
+    --secondary-color: #6c757d;
+    --secondary-light: #f8f9fa;
+    --info-color: #007aff;
+    --info-light: rgba(0, 122, 255, 0.1);
+
+    --savings-color: var(--info-color);
+    --savings-light: var(--info-light);
+
+    --main-bg: #f4f5f9;
+    --sidebar-bg: rgba(255, 255, 255, 0.7);
+    --card-bg: #ffffff;
+    --text-dark: #1d1d1f;
+    --text-light: #6e6e73;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --shadow-color-light: rgba(99, 115, 129, 0.08);
+    --shadow-color-heavy: rgba(99, 115, 129, 0.16);
+    --font-main: 'Sarabun', sans-serif;
+    --backdrop-blur: 16px;
+    --input-bg: #ffffff;
+    --table-header-bg: rgba(244, 245, 249, 0.8);
+    --table-hover-bg: rgba(94, 92, 230, 0.05);
+}
+
+/* --- ตัวแปรสีสำหรับ Dark Mode --- */
+body.dark-mode {
+    --main-bg: #1c1c1e;
+    --sidebar-bg: rgba(44, 44, 46, 0.7);
+    --card-bg: #2c2c2e;
+    --text-dark: #f2f2f7;
+    --text-light: #8e8e93;
+    --border-color: rgba(255, 255, 255, 0.15);
+    --shadow-color-light: rgba(0, 0, 0, 0.15);
+    --shadow-color-heavy: rgba(0, 0, 0, 0.25);
+    --input-bg: #3a3a3c;
+    --table-header-bg: rgba(44, 44, 46, 0.8);
+    --table-hover-bg: rgba(94, 92, 230, 0.15);
+    --savings-light: rgba(0, 122, 255, 0.2);
+}
+
+
+/* --- การตั้งค่าพื้นฐาน --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--main-bg);
+    color: var(--text-dark);
+    line-height: 1.6;
+    overflow-x: hidden;
+    transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* --- โครงสร้างหลักของแอปพลิเคชัน --- */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* --- แถบควบคุมด้านซ้าย (Sidebar) - Glassmorphism --- */
+.sidebar {
+    width: var(--sidebar-width);
+    min-width: 300px;
+    max-width: 600px;
+    flex-shrink: 0;
+    background-color: var(--sidebar-bg);
+    backdrop-filter: blur(var(--backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur));
+    border-right: 1px solid var(--border-color);
+    padding: 1.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    transition: background-color 0.4s ease, border-color 0.4s ease;
+    z-index: 100;
+    overflow-y: auto;
+}
+
+.resizer {
+    width: 5px;
+    cursor: col-resize;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 101;
+}
+
+.resizer:hover,
+.resizer.is-resizing {
+    background-color: var(--primary-color);
+}
+
+
+.sidebar .header {
+    padding-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0;
+}
+
+.sidebar .header .logo {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+}
+
+.sidebar .header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+}
+.sidebar .header p {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin: 0;
+}
+
+/* --- กลุ่มของส่วนควบคุม --- */
+.controls-group {
+    animation: fadeIn 0.5s ease-out both;
+}
+.controls-group:nth-child(2) { animation-delay: 0.1s; }
+.controls-group:nth-child(3) { animation-delay: 0.2s; }
+.controls-group:nth-child(4) { animation-delay: 0.3s; }
+.controls-group:nth-child(5) { animation-delay: 0.4s; }
+
+
+.controls-group h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 1rem;
+    padding-left: 0.5rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.input-group label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding-left: 0.5rem;
+    color: var(--text-light);
+}
+
+.profile-group {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+.profile-input-wrapper {
+    flex-grow: 1;
+}
+.btn-icon-only {
+    padding: 0.8rem;
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    background: var(--primary-color);
+    color: white;
+    font-size: 1.2rem;
+}
+
+/* --- สไตล์ของ Input, Select, Button --- */
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background-color: var(--input-bg);
+    color: var(--text-dark);
+    font-family: var(--font-main);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px var(--primary-light);
+}
+
+textarea {
+    resize: vertical;
+}
+
+
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    font-family: var(--font-main);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px var(--shadow-color-light);
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px var(--shadow-color-heavy);
+}
+.btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px var(--shadow-color-heavy);
+}
+
+.btn-success { background: linear-gradient(45deg, #34c759, #23a94f); color: #fff; }
+.btn-danger { background: linear-gradient(45deg, #ff3b30, #e02c22); color: #fff; }
+.btn-main { background: linear-gradient(45deg, #5e5ce6, #4b48d9); color: #fff; }
+.btn-secondary { background-color: var(--main-bg); color: var(--text-dark); border: 1px solid var(--border-color); }
+.btn-secondary:hover { background-color: var(--border-color); }
+.btn-info { background: linear-gradient(45deg, #007aff, #006adc); color: #fff; }
+
+
+/* --- สไตล์สำหรับปุ่มสลับธีมดีไซน์ใหม่ --- */
+.theme-switcher {
+    position: fixed;
+    top: 2rem;
+    right: 3rem;
+    z-index: 1100;
+}
+
+#themeToggle {
+    display: none;
+}
+
+.slider-v2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 68px;
+    height: 36px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 50px;
+    cursor: pointer;
+    padding: 0 8px;
+    position: relative;
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 12px var(--shadow-color-light);
+}
+
+.slider-v2:hover {
+    box-shadow: 0 6px 16px var(--shadow-color-heavy);
+}
+
+.slider-v2::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(45deg, #f9d423, #ff9500);
+    border-radius: 50%;
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), background 0.4s ease;
+}
+
+#themeToggle:checked + .slider-v2::before {
+    transform: translateX(32px);
+    background: linear-gradient(45deg, #5e5ce6, #8e8dff);
+}
+
+.slider-v2 .ph-sun,
+.slider-v2 .ph-moon {
+    font-size: 1.1rem;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* Light Mode State */
+.slider-v2 .ph-sun {
+    opacity: 1;
+    transform: rotate(0deg);
+    color: #ff9500;
+}
+.slider-v2 .ph-moon {
+    opacity: 0;
+    transform: rotate(90deg);
+    color: #5e5ce6;
+}
+
+/* Dark Mode State */
+#themeToggle:checked + .slider-v2 .ph-sun {
+    opacity: 0;
+    transform: rotate(-90deg);
+}
+#themeToggle:checked + .slider-v2 .ph-moon {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+/* --- สไตล์สำหรับเป้าหมายการออม --- */
+#savingsGoalsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.goal-item {
+    background-color: var(--main-bg);
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+}
+.goal-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+.goal-name {
+    font-weight: 600;
+}
+.goal-amount {
+    color: var(--text-light);
+}
+.goal-progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.goal-progress {
+    height: 100%;
+    background-color: var(--primary-color);
+    border-radius: 4px;
+    transition: width 0.5s ease-out;
+}
+.goal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-light);
+    font-size: 1.1rem;
+    transition: color 0.2s;
+}
+.btn-icon:hover {
+    color: var(--primary-color);
+}
+.no-goals {
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-light);
+    padding: 1rem;
+}
+
+/* --- ส่วนเนื้อหาหลัก --- */
+.main-content {
+    flex-grow: 1;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    overflow-y: auto;
+    min-width: 0;
+}
+
+.main-header {
+    animation: fadeIn 0.5s ease-out 0.2s both;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.main-header .header-text {
+    flex-grow: 1;
+}
+
+.main-header .header-text h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.main-header .header-text p {
+    font-size: 1rem;
+    color: var(--text-light);
+}
+
+.clock-display {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1rem 1.75rem;
+    text-align: center;
+    box-shadow: 0 6px 16px var(--shadow-color-light);
+    flex-shrink: 0;
+    margin: 0 auto;
+}
+
+.clock-display .date {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+.clock-display .time {
+    font-size: 1rem;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.clock-display .time .ph {
+    font-size: 1.1rem;
+}
+
+/* --- Card สรุปผล --- */
+.summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+}
+
+.summary-card {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 16px -8px var(--shadow-color-light);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    animation: fadeIn 0.5s ease-out both;
+}
+.summary-card:nth-child(1) { animation-delay: 0.3s; }
+.summary-card:nth-child(2) { animation-delay: 0.4s; }
+.summary-card:nth-child(3) { animation-delay: 0.5s; }
+.summary-card:nth-child(4) { animation-delay: 0.6s; }
+
+
+.summary-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px -8px var(--shadow-color-heavy);
+}
+
+.summary-card .card-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+.summary-card:hover .card-icon {
+    transform: scale(1.1) rotate(-5deg);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.card-icon.income { background: linear-gradient(45deg, var(--success-color), #56d97a); color: #fff; }
+.card-icon.expense { background: linear-gradient(45deg, var(--danger-color), #ff6b6b); color: #fff; }
+.card-icon.balance { background: linear-gradient(45deg, var(--primary-color), #8a88ff); color: #fff; }
+.card-icon.savings { background: linear-gradient(45deg, var(--savings-color), #58a9ff); color: #fff; }
+
+.summary-card .card-content h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+}
+
+.summary-card .amount {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    line-height: 1;
+    animation: numberUpdate 0.3s ease-out;
+}
+
+.income-amount { color: var(--success-color); }
+.expense-amount { color: var(--danger-color); }
+.balance-amount { color: var(--text-dark); }
+.savings-amount { color: var(--savings-color); }
+
+body.dark-mode .balance-amount { color: #fff; }
+
+
+/* --- ตารางข้อมูล --- */
+.table-container {
+    background-color: var(--card-bg);
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 24px -4px var(--shadow-color-light);
+    overflow: hidden;
+    flex-grow: 1;
+    animation: fadeIn 0.5s ease-out 0.6s both;
+}
+
+.table-wrapper {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1200px;
+}
+
+th, td {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+thead th:last-child,
+tbody td:last-child,
+tfoot td:last-child {
+    border-right: none;
+}
+
+thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: var(--table-header-bg);
+    backdrop-filter: blur(8px);
+}
+
+thead th .header-main {
+    font-size: 1.25rem;
+    font-weight: 700;
+    padding-bottom: 0.25rem;
+}
+
+thead th .header-sub {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-light);
+    padding: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-height: 60px;
+}
+
+.column-title-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 28px;
+}
+
+.column-name-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex-grow: 1;
+    padding: 0 55px;
+    min-width: 120px;
+    position: relative;
+}
+
+.column-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-family: var(--font-main);
+    color: var(--text-dark);
+    padding: 4px 8px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.column-title:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+body.dark-mode .column-title {
+    color: var(--text-dark);
+}
+
+body.dark-mode .column-title:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.due-date-display {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.due-date-display.expense { color: var(--danger-color); }
+.due-date-display.income { color: var(--success-color); }
+
+.column-name-input {
+    background: transparent;
+    border: 1px solid transparent;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-family: var(--font-main);
+    color: var(--text-dark);
+    padding: 4px 8px;
+    border-radius: 4px;
+    width: 100%;
+    min-width: 120px;
+    transition: all 0.2s ease-out;
+}
+
+.column-name-input:focus {
+    background: var(--input-bg);
+    color: var(--text-dark);
+    border-color: var(--primary-color);
+    box-shadow: none;
+}
+
+.header-main, td {
+    text-align: center;
+}
+
+tbody tr { transition: background-color 0.2s; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background-color: var(--table-hover-bg); }
+
+tbody td:first-child,
+tbody td:nth-child(2) {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    background-color: var(--card-bg);
+}
+
+body.dark-mode tbody td:first-child,
+body.dark-mode tbody td:nth-child(2) {
+    background-color: var(--card-bg);
+}
+
+.current-month-row {
+    background-color: var(--primary-light) !important;
+    font-weight: 700;
+}
+body.dark-mode .current-month-row {
+    background-color: rgba(94, 92, 230, 0.2) !important;
+}
+
+.current-month-row td:first-child {
+    border-left: 4px solid var(--primary-color);
+}
+.current-month-row td:first-child,
+.current-month-row td:nth-child(2) {
+    color: var(--primary-color);
+}
+
+.amount-input {
+    border: none;
+    padding: 8px;
+    background-color: transparent;
+    text-align: center;
+    border-radius: 6px;
+    color: var(--text-dark);
+    flex: 1;
+    min-width: 0;
+}
+
+.amount-input:focus {
+    background-color: var(--input-bg);
+    box-shadow: 0 0 0 3px var(--primary-light);
+    transform: scale(1.05);
+}
+
+.income-cell { background-color: var(--success-light); }
+.expense-cell { background-color: var(--danger-light); }
+.savings-cell { background-color: var(--savings-light); }
+
+body.dark-mode .income-cell { background-color: rgba(52, 199, 89, 0.15); }
+body.dark-mode .expense-cell { background-color: rgba(255, 59, 48, 0.15); }
+body.dark-mode .savings-cell { background-color: var(--savings-light); }
+
+
+.amount-cell-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.note-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-light);
+    font-size: 1.2rem;
+    opacity: 0.5;
+    transition: all 0.2s;
+}
+.note-btn:hover {
+    opacity: 1;
+    color: var(--info-color);
+}
+.note-btn.active {
+    opacity: 1;
+    color: var(--info-color);
+}
+
+
+.amount-checkbox {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+.custom-checkbox-label { cursor: pointer; }
+.custom-checkbox {
+    height: 22px;
+    width: 22px;
+    border-radius: 50%;
+    border: 2px solid #b0b0b0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--input-bg);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.amount-checkbox:checked + .custom-checkbox-label .custom-checkbox { border-color: transparent; }
+.custom-checkbox::after { content: ''; display: block; width: 12px; height: 12px; transform: scale(0); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); background-size: contain; background-repeat: no-repeat; background-position: center; }
+.amount-checkbox:checked + .custom-checkbox-label .custom-checkbox::after { transform: scale(1); }
+.income-cell .amount-checkbox:checked + .custom-checkbox-label .custom-checkbox { background-color: var(--success-color); }
+.income-cell .custom-checkbox::after { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"%3E%3Cpolyline points="20 6 9 17 4 12"%3E%3C/polyline%3E%3C/svg%3E'); }
+.expense-cell .amount-checkbox:checked + .custom-checkbox-label .custom-checkbox { background-color: var(--danger-color); }
+.expense-cell .custom-checkbox::after { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"%3E%3Cline x1="18" y1="6" x2="6" y2="18"%3E%3C/line%3E%3Cline x1="6" y1="6" x2="18" y2="18"%3E%3C/line%3E%3C/svg%3E'); }
+.savings-cell .amount-checkbox:checked + .custom-checkbox-label .custom-checkbox { background-color: var(--savings-color); }
+.savings-cell .custom-checkbox::after { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"%3E%3Cpolyline points="20 6 9 17 4 12"%3E%3C/polyline%3E%3C/svg%3E'); }
+
+
+.is-paid .amount-input {
+    text-decoration: line-through;
+    color: var(--text-light);
+    opacity: 0.6;
+}
+
+.total-cell {
+    font-weight: 700;
+    position: relative;
+    font-size: 1.15rem;
+    padding: 1rem 1.75rem !important;
+}
+.income-cell.total-cell { background-color: var(--success-color); color: #fff; border-left: 2px solid rgba(255, 255, 255, 0.2); }
+.expense-cell.total-cell { background-color: var(--danger-color); color: #fff; border-left: 2px solid rgba(255, 255, 255, 0.2); }
+.savings-cell.total-cell { background-color: var(--savings-color); color: #fff; border-left: 2px solid rgba(255, 255, 255, 0.2); }
+.balance-cell.total-cell { background-color: var(--text-dark); color: #fff; }
+body.dark-mode .balance-cell.total-cell { background-color: #3a3a3c; }
+
+.balance-cell.total-cell.income-amount { color: #86efac; }
+.balance-cell.total-cell.expense-amount { color: #fca5a5; }
+
+.total-header, thead th[rowspan="2"]:last-of-type .header-main {
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.income-header.total-header { background-color: var(--success-color); }
+.expense-header.total-header { background-color: var(--danger-color); }
+.savings-header.total-header { background-color: var(--savings-color); }
+
+thead th[rowspan="2"]:last-of-type {
+    background-color: var(--text-dark);
+    color: #fff;
+}
+
+body.dark-mode thead th[rowspan="2"]:last-of-type {
+    background-color: #3a3a3c;
+}
+
+.delete-col-btn, .move-col-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    opacity: 0;
+    transition: all 0.2s ease;
+    padding: 0.25rem;
+    line-height: 1;
+    z-index: 2;
+}
+
+.move-col-btn[onclick*="'left'"] {
+    left: 4px;
+}
+.delete-col-btn {
+    right: 28px;
+}
+.move-col-btn[onclick*="'right'"] {
+    right: 4px;
+}
+
+.column-title-wrapper:hover .delete-col-btn,
+.column-title-wrapper:hover .move-col-btn {
+    opacity: 0.6;
+}
+
+.delete-col-btn:hover,
+.move-col-btn:hover {
+    opacity: 1 !important;
+    transform: translateY(-50%) scale(1.1) !important;
+}
+
+.delete-col-btn { color: var(--danger-color); }
+.move-col-btn { color: var(--secondary-color); }
+
+
+tfoot {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    background-color: var(--table-header-bg);
+    backdrop-filter: blur(8px);
+    border-top: 2px solid var(--border-color);
+}
+
+tfoot td {
+    font-weight: 700;
+    font-size: 1.05rem;
+    border-bottom: none;
+}
+
+tfoot td:first-child {
+    font-size: 1.25rem !important;
+}
+
+tfoot td.income-cell.total-cell,
+tfoot td.expense-cell.total-cell,
+tfoot td.savings-cell.total-cell,
+tfoot td.balance-cell.total-cell {
+    font-size: 1.4rem !important;
+}
+
+
+/* Modal and Dashboard Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background-color: var(--card-bg);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    width: 90%;
+    max-width: 600px;
+    animation: modalFadeIn 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) both;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-content.modal-lg {
+    max-width: 900px;
+    width: 95%;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.modal-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+}
+.close-btn { background: none; border: none; font-size: 1.75rem; cursor: pointer; color: var(--text-light); transition: color 0.2s, transform 0.2s; }
+.close-btn:hover { color: var(--danger-color); transform: rotate(90deg); }
+
+.modal-body { max-height: 75vh; overflow-y: auto; padding: 0.5rem 1rem 0.5rem 0.5rem; }
+.modal-body::-webkit-scrollbar { width: 8px; }
+.modal-body::-webkit-scrollbar-track { background: var(--main-bg); border-radius: 4px; }
+.modal-body::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+.modal-body::-webkit-scrollbar-thumb:hover { background: #aaa; }
+
+.dashboard-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.chart-container {
+    position: relative;
+    height: 380px;
+}
+.chart-container h3 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+/* START: ### เพิ่ม/แก้ไขสไตล์สำหรับ Modal รายการประจำ ### */
+#recurringList {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.recurring-section {
+    background-color: var(--main-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.recurring-section h4 {
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.recurring-section.income-section h4 { background-color: var(--success-color); }
+.recurring-section.expense-section h4 { background-color: var(--danger-color); }
+.recurring-section.savings-section h4 { background-color: var(--savings-color); }
+
+.recurring-section h4 .ph {
+    font-size: 1.2rem;
+}
+
+.recurring-items-list {
+    /* START: แก้ไข Padding เพื่อแก้ปัญหา UI */
+    padding: 0.75rem 1.25rem 1.5rem; /* เพิ่ม Padding ด้านบนและด้านล่างให้มากขึ้น */
+    /* END: แก้ไข Padding */
+    display: flex;
+    flex-direction: column;
+}
+
+.due-date-item, .recurring-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.recurring-item:hover {
+    background-color: var(--table-hover-bg);
+}
+
+.due-date-item:last-child,
+.recurring-items-list .recurring-item:last-child {
+    border-bottom: none;
+}
+.due-date-item label, .recurring-item label { font-weight: 600; font-size: 1rem; }
+.due-date-item input[type="number"], .recurring-item input[type="number"] { width: 150px; text-align: center; }
+/* END: ### เพิ่ม/แก้ไขสไตล์ ### */
+
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.modal-content.confirmation { max-width: 450px; text-align: center; }
+.modal-content.confirmation .modal-header { justify-content: center; border-bottom: none; padding-bottom: 0; margin-bottom: 0.5rem; }
+.modal-content.confirmation .modal-header h2 { color: var(--danger-color); }
+.modal-content.confirmation .modal-body { max-height: none; overflow-y: visible; padding: 0 1rem 1.5rem; }
+.modal-content.confirmation .modal-footer { justify-content: center; border-top: none; padding-top: 0; margin-top: 0; gap: 1rem; }
+
+
+#notification-container {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-end;
+}
+.notification-card {
+    min-width: 350px;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 8px 24px -4px var(--shadow-color-heavy);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-left: 5px solid;
+    animation: notificationSlideIn 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) both;
+}
+.notification-card.fade-out { animation: notificationFadeOut 0.5s ease-out both; }
+.notification-card .noti-icon { font-size: 2rem; flex-shrink: 0; }
+.notification-card .noti-content h4 { font-weight: 700; margin: 0 0 0.25rem; }
+.notification-card .noti-content p { font-size: 0.9rem; margin: 0; color: var(--text-light); }
+
+.notification-card.warning { border-left-color: var(--warning-color); }
+.notification-card.warning .noti-icon { color: var(--warning-color); }
+.notification-card.success { border-left-color: var(--success-color); }
+.notification-card.success .noti-icon { color: var(--success-color); }
+.notification-card.danger { border-left-color: var(--danger-color); }
+.notification-card.danger .noti-icon { color: var(--danger-color); }
+.notification-card.info { border-left-color: var(--info-color); }
+.notification-card.info .noti-icon { color: var(--info-color); }
+
+
+/* Loading Indicator */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.loading-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+
+/* --- Responsive Design --- */
+@media (max-width: 1200px) {
+    .app-container { flex-direction: column; }
+    .sidebar {
+        width: 100%;
+        min-width: unset;
+        max-width: unset;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+    .main-content { padding: 1.5rem; }
+    .resizer {
+        display: none;
+    }
+}
+
+@media (max-width: 992px) {
+    .dashboard-body { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .main-content { padding: 1rem; }
+    .main-header { justify-content: center; text-align: center;}
+    .main-header .header-text h2 { font-size: 1.5rem; }
+    .summary { grid-template-columns: 1fr; }
+    .modal-content { width: 95%; padding: 1.5rem; }
+    #notification-container { top: 1rem; right: 1rem; left: 1rem; align-items: stretch; }
+    .theme-switcher { top: 1.5rem; right: 1.5rem; }
+}
+
