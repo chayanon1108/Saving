@@ -1,37 +1,54 @@
 <?php
-// Budget Tracker Pro - Database Configuration
+// Budget Tracker Pro - Database Configuration for Render.com (Final Version)
 
-// -- ตั้งค่าการเชื่อมต่อฐานข้อมูล --
-// กรุณาแก้ไขค่าเหล่านี้ให้ตรงกับการตั้งค่าเซิร์ฟเวอร์ของคุณ
-$servername = "localhost";    // หรือ IP ของเซิร์ฟเวอร์ฐานข้อมูล
-$username = "root";           // ชื่อผู้ใช้สำหรับเข้าฐานข้อมูล
-$password = "";               // รหัสผ่านสำหรับเข้าฐานข้อมูล
-$dbname = "saving_db";        // *** แก้ไข: เปลี่ยนชื่อฐานข้อมูลให้ตรงกับไฟล์ .sql ***
+header('Content-Type: application/json');
+// ปิดการแสดง error บนหน้าเว็บเพื่อความปลอดภัย แต่ยังสามารถดู log ได้บน Render
+ini_set('display_errors', 0); 
+error_reporting(E_ALL);
 
-// -- สร้างการเชื่อมต่อ --
-$conn = new mysqli($servername, $username, $password, $dbname);
+// ดึงค่า Connection URL ที่เราตั้งไว้ใน Environment Variable ของ Render
+$database_url_str = getenv('DATABASE_URL');
 
-// -- ตรวจสอบการเชื่อมต่อ --
-if ($conn->connect_error) {
-    // หยุดการทำงานและแสดงข้อความข้อผิดพลาดในรูปแบบ JSON
-    header('Content-Type: application/json');
-    http_response_code(500); // Internal Server Error
-    die(json_encode([
-        'success' => false,
-        'message' => 'Database connection failed: ' . $conn->connect_error
-    ]));
-}
-
-// -- ตั้งค่าการเข้ารหัสตัวอักษรเป็น UTF-8 --
-// เพื่อให้รองรับภาษาไทยได้อย่างถูกต้อง
-if (!$conn->set_charset("utf8")) {
-    // หากตั้งค่าไม่ได้ ให้แสดงข้อผิดพลาด
-    header('Content-Type: application/json');
+if ($database_url_str === false) {
     http_response_code(500);
     die(json_encode([
         'success' => false,
-        'message' => 'Error loading character set utf8: ' . $conn->error
+        'message' => 'Database connection URL not found. Please set the DATABASE_URL environment variable.'
     ]));
 }
 
+try {
+    // แยกส่วนประกอบของ URL เพื่อนำไปใช้เชื่อมต่อ
+    $db_parts = parse_url($database_url_str);
+
+    $host = $db_parts['host'];
+    $port = $db_parts['port'];
+    $user = $db_parts['user'];
+    $pass = $db_parts['pass'];
+    // ตัดเครื่องหมาย / ที่นำหน้าชื่อ database ออก
+    $dbname = ltrim($db_parts['path'], '/');
+
+    // สร้าง DSN (Data Source Name) สำหรับการเชื่อมต่อ PostgreSQL
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+
+    // เพิ่ม Options ที่จำเป็นสำหรับการเชื่อมต่อที่เสถียรและปลอดภัย
+    $options = [
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES   => false,
+    ];
+
+    // สร้างการเชื่อมต่อด้วย PDO ซึ่งรองรับ PostgreSQL
+    $conn = new PDO($dsn, $user, $pass, $options);
+    
+} catch (PDOException $e) {
+    http_response_code(500);
+    // บันทึก error ไว้ใน log ของเซิร์ฟเวอร์ แทนที่จะแสดงให้ผู้ใช้เห็น
+    error_log('Database Connection Error: ' . $e->getMessage());
+    die(json_encode([
+        'success' => false,
+        'message' => 'A server error occurred during database connection. Please check server logs.'
+    ]));
+}
 ?>
+
