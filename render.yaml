@@ -1,10 +1,7 @@
 services:
   - type: web
     name: saving # คุณสามารถเปลี่ยนชื่อนี้ได้ตามต้องการ
-    env: php
+    env: docker # บอกให้ Render ใช้ Docker
     plan: free
-    phpVersion: '8.1' # ระบุเวอร์ชัน PHP ให้ชัดเจน
-    # คำสั่งสำหรับเริ่มการทำงานของเว็บเซิร์ฟเวอร์ Apache
-    startCommand: apache2-foreground
     healthCheckPath: /index.html
 
