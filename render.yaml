@@ -4,4 +4,7 @@ services:
     env: docker # บอกให้ Render ใช้ Docker
     plan: free
     healthCheckPath: /index.html
+    # ปิดการ deploy อัตโนมัติชั่วคราวเพื่อให้เราตรวจสอบได้ง่ายขึ้น
+    # เมื่อทุกอย่างทำงานได้ปกติแล้ว คุณสามารถลบบรรทัดนี้ออกได้
+    autoDeploy: false
 
